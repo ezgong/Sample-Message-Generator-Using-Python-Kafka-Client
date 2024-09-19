@@ -9,6 +9,7 @@ from pizzaproducer import PizzaProvider
 from userbehaviorproducer import UserBehaviorProvider
 from stockproducer import StockProvider
 from realstockproducer import RealStockProvider
+from realstockproducer_uuid import RealStockProvider_uuid
 from metricproducer import MetricProvider
 from userbets import UserBetsProvider
 from rolling import RollingProvider
@@ -78,6 +79,8 @@ def produce_msgs(
         fake.add_provider(StockProvider)
     elif subject == "realstock":
         fake.add_provider(RealStockProvider)
+    elif subject == "realstock_uuid":
+        fake.add_provider(RealStockProvider_uuid)
     elif subject == "metric":
         fake.add_provider(MetricProvider)
     elif subject == "advancedmetric":
@@ -95,6 +98,7 @@ def produce_msgs(
             "stock",
             "userbehaviour",
             "realstock",
+            "realstock_uuid",
             "metric",
             "bet",
             "rolling",
@@ -186,7 +190,7 @@ def main():
         "--subject",
         help="""What type of content to produce (possible choices areL
                 [pizza, userbehaviour, stock,
-                realstock, metric, advancedmetric]
+                realstock, realstock_uuid, metric, advancedmetric]
                 pizza is the default""",
         required=False,
     )
