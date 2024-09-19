@@ -245,4 +245,12 @@ Sending: {'hostname': 'hostname58818', 'cpu': 'cpu15', 'usage': 87.8367169647086
 {'stock_name': 'ADA-USD', 'stock_value': 2.2166504859924316, 'timestamp': 1634221557971}
 ```
 
+* real `realstock_uuid` data (based on yahoo finance apis)
+
+```
+{'message_uuid': 'ef2c8e80-5210-4163-a2a1-720aa219a8c5', 'stock_name': 'DOGE-USD', 'stock_value': np.float64(0.10425754636526108), 'message_timestamp': '2024-09-18T20:44:20.581701-07:00'}
+{'message_uuid': 'eaeac11b-121b-4224-adf8-22acb3f4cdb0', 'stock_name': 'DOGE-USD', 'stock_value': np.float64(0.10425754636526108), 'message_timestamp': '2024-09-18T20:44:21.529712-07:00'
+{'message_uuid': 'a3e2e6c0-f7be-451a-b91a-c80c5d1ab8b6', 'stock_name': 'BNB-USD', 'stock_value': np.float64(560.6453857421875), 'message_timestamp': '2024-09-18T20:44:22.339817-07:00'}
+```
+
 Apache Kafka is either a registered trademark or trademark of the Apache Software Foundation in the United States and/or other countries. Aiven has no affiliation with and is not endorsed by The Apache Software Foundation.

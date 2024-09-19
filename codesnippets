@@ -1,0 +1,80 @@
+#Python code snippets to generate real stock quote message with uuid and ISO 8601 formatted time stamp.
+from faker.providers import BaseProvider
+import random
+import time
+from yahoo_fin import stock_info as si
+import uuid
+from datetime import datetime
+
+StockNames = ["BTC-USD", "ETH-USD", "BNB-USD", "ADA-USD", "DOGE-USD"]
+
+
+class RealStockProvider_uuid(BaseProvider):
+    def stock_name(self):
+        return random.choice(StockNames)
+
+    def stock_value(self, stockname):
+        nextval = si.get_live_price(stockname)
+        return nextval
+
+    def produce_msg(self):
+        stockname = self.stock_name()
+        message = {
+            "message_uuid": str(uuid.uuid4()),
+            "stock_name": stockname,
+            "stock_value": self.stock_value(stockname),
+            "message_timestamp": str(datetime.now().astimezone().isoformat()),
+        }
+        key = {"stock_name": stockname}
+        return message, key
+
+
+#Flink source table
+CREATE TABLE realstock_uuid (
+    message_uuid VARCHAR,
+    stock_name VARCHAR,
+    stock_value FLOAT,
+    message_timestamp VARCHAR
+) WITH (
+    'connector' = 'kafka',
+    'properties.bootstrap.servers' = 'kafka-22264d8c-egong-kafka.j.aivencloud.com:22367',
+    'scan.startup.mode' = 'earliest-offset',
+    'topic' = 'realstock',
+    'value.format' = 'json'
+)
+
+#Flink Sink Tables
+CREATE TABLE pennystock (
+    message_uuid VARCHAR,
+    stock_name VARCHAR,
+    stock_value FLOAT,
+    message_timestamp VARCHAR,
+    PRIMARY KEY (message_uuid) NOT ENFORCED
+) WITH (
+    'connector' = 'upsert-kafka',
+    'properties.bootstrap.servers' = 'kafka-22264d8c-egong-kafka.j.aivencloud.com:22367',
+    'topic' = 'pennystock',
+    'value.format' = 'json',
+    'key.format' = 'json'
+)
+
+CREATE TABLE nonpennystock (
+    message_uuid VARCHAR,
+    stock_name VARCHAR,
+    stock_value FLOAT,
+    message_timestamp VARCHAR,
+    PRIMARY KEY (message_uuid) NOT ENFORCED
+) WITH (
+    'connector' = 'upsert-kafka',
+    'properties.bootstrap.servers' = 'kafka-22264d8c-egong-kafka.j.aivencloud.com:22367',
+    'topic' = 'nonpennystock',
+    'value.format' = 'json',
+    'key.format' = 'json'
+)
+
+#Flink SQL application
+EXECUTE STATEMENT SET
+BEGIN
+INSERT INTO pennystock SELECT * FROM realstock_uuid WHERE stock_value < 1.0;
+INSERT INTO nonpennystock SELECT * FROM realstock_uuid WHERE stock_value >= 1.0;
+END
